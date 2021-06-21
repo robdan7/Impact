@@ -2,7 +2,7 @@
 // Created by Robin on 2021-05-27.
 //
 #pragma once
-#include "stdint.h"
+#include <cstdint>
 #include "allocator.h"
 #include "tools/ptr.h"
 namespace Impact {
@@ -11,6 +11,9 @@ namespace Impact {
     public:
         Spatial_octree() {
             this->root = (uint16_t)p_nodes.template alloc<Impact::vec3,Impact::vec3>({0,0,0},{std::numeric_limits<scalar>::max(),std::numeric_limits<scalar>::max(),std::numeric_limits<scalar>::max()});
+        }
+        C* at(uint16_t index) {
+            return &this->p_data.at(index)->item;
         }
         template<typename... Args>
         uint16_t insert(const vec3& position, const vec3& half_axis, Args&&... args) {
@@ -42,8 +45,8 @@ namespace Impact {
             n.box.position = position;
             p_nodes[this->root].insert(p_nodes,c.leaf);
         }
-        void intersect(uint16_t data, std::vector<C&> target) {
-            auto& obj = p_data.at(data);
+        void intersect(uint16_t target_node, std::vector<C&> target) {
+            auto& obj = p_data.at(target_node);
             Node& leaf = p_nodes.at(obj.leaf);
             leaf.search_flag = true; /// Avoid searching for the target node.
             Node& root = p_nodes.at(this->root);
@@ -75,9 +78,22 @@ namespace Impact {
                 p_nodes.at(obj->leaf)->search_flag = true;
             }
         }
-        void intersect(std::vector<std::pair<uint16_t,uint16_t>>& target) {
+        /**
+         * Find all unique intersections in the octree.
+         * @param target
+         */
+        void intersect(std::vector<std::pair<C*,C*>>& target) {
             Pool_array<1,uint8_t,bool> flags;
-            this->p_nodes.at(this->root)->intersect(target,this->p_nodes,flags);
+            std::vector<std::pair<uint16_t,uint16_t>> temp_target;
+            this->p_nodes.at(this->root)->intersect(temp_target,this->p_nodes,flags);
+            target.clear();
+            target.reserve(temp_target.size());
+            for (auto& pair: temp_target) {
+                auto* first = this->at(this->p_nodes[pair.first].data);
+                auto* second = this->at(this->p_nodes[pair.second].data);
+                target.emplace_back(first, second);
+                //target.emplace_back(this->p_data.at(pair.first), this->p_data.at(pair.second));
+            }
         }
         C& get(uint16_t pointer) {
             return this->p_data.at(pointer)->item;
