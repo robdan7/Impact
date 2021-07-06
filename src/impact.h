@@ -30,13 +30,13 @@ namespace Impact {
     void transform_inertia(mat3& world_inverse_inertia, const quaternion& q,const mat3& local_inverse_inertia, const mat4& rotmat);
     void orthogonal_basis(const vec3& x, vec3& y, vec3& z);
     void integrate(scalar duration);
-    pointer<Physics_object> register_object(Physics_object* obj);
+    private_ptr<Physics_object*> register_object(Physics_object* obj);
 
     class Physics_world {
     public:
         Physics_world() = default;
         void integrate(scalar duration);
-        pointer<Physics_object> reg(Physics_object* obj);
+        private_ptr<Physics_object*> reg(Physics_object* obj);
     private:
         //Same_arena_allocator<1,uint8_t,Physics_object*> m_physics_objects;
         Sparse_stack<ptr_primitive,1,uint8_t,Physics_object*> m_physics_objects;

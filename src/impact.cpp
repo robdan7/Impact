@@ -48,7 +48,7 @@ namespace Impact {
 
     }
 
-    pointer<Physics_object> register_object(Physics_object *obj) {
+    private_ptr<Physics_object*> register_object(Physics_object *obj) {
         /// TODO Assert for nullptr
         return current_world->reg(obj);
     }
@@ -77,9 +77,9 @@ namespace Impact {
         z.normalize();
     }
 
-    pointer<Physics_object> Physics_world::reg(Physics_object *obj) {
+    private_ptr<Physics_object*> Physics_world::reg(Physics_object *obj) {
         auto ID = this->m_physics_objects.push_entry(obj);
-        return pointer<Physics_object>(ID,(Container<Physics_object>*)&this->m_physics_objects);
+        return private_ptr<Physics_object*>(ID, (Container<Physics_object*>*)&this->m_physics_objects);
     }
 
     void Physics_world::integrate(scalar duration) {

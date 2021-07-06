@@ -8,6 +8,18 @@
 namespace Impact {
     class particle_contact {
     public:
+        /**
+         * Create a new particle contact
+         * @param p1 - The first particle
+         * @param p2 - The second particle. Can be a nullptr
+         * @param contact_normal - The normal from the second to the first particle.
+         * @param depth - The contact depth
+         * @param restitution - A value between 0 and 1 that determines the bounce factor.
+         */
+        particle_contact(particle* p1, particle* p2, const vec3& contact_normal, scalar depth, scalar restitution = 0) : contact_normal(contact_normal),depth(depth),restitution(restitution){
+            //p_particles[0] = p1;
+            // p_particles[1] = p2;
+        }
         particle* p_particles[2] = {nullptr};
         scalar restitution;
         vec3 contact_normal;

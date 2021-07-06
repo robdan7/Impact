@@ -15,9 +15,17 @@ namespace Impact {
         C* at(uint16_t index) {
             return &this->p_data.at(index)->item;
         }
-        template<typename... Args>
-        uint16_t insert(const vec3& position, const vec3& half_axis, Args&&... args) {
+        template<class... Args>
+        uint16_t emplace(const vec3& position, const vec3& half_axis, Args&&... args) {
             auto data = (uint16_t)p_data.alloc(std::forward<Args>(args)...);
+            auto leaf = (uint16_t)p_nodes.alloc(data,position,half_axis);
+            p_data.at(data)->leaf = leaf;
+            p_nodes[this->root].insert(p_nodes,leaf);
+            return data;
+        }
+
+        uint16_t push(const vec3& position, const vec3& half_axis, C&& object) {
+            auto data = (uint16_t)p_data.push(std::forward<C>(object));
             auto leaf = (uint16_t)p_nodes.alloc(data,position,half_axis);
             p_data.at(data)->leaf = leaf;
             p_nodes[this->root].insert(p_nodes,leaf);
@@ -193,7 +201,7 @@ namespace Impact {
                                 }
                                 Node* n1 = nodes.at(largest);
                                 Node* n2 = nodes.at(smallest);
-                                uint32_t index = (largest*largest+largest)*0.5;
+                                uint32_t index = ((uint64_t)(largest*largest+largest))/2;
                                 if (flags.has_page_indexed(index)) {
                                     if (!flags[index+smallest]) {
                                         if (n1->box.aabb_intersect(n2->box)) {

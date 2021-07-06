@@ -20,6 +20,7 @@ namespace Impact {
 		template<class T, typename... Args>
 		static T* alloc_header(std::size_t size, Args&&... args) {
 			T* alloc = (T*)std::malloc(size + sizeof(T));
+			std::memset(alloc,0,size + sizeof(T));
 			//ORVOX_ASSERT(alloc, "BAD_ALLOC");
 
 			if constexpr (std::is_aggregate_v<T>) {
@@ -148,14 +149,14 @@ namespace Impact {
 			return (size_type)(index - 1);
 		}
 
-		size_type push(const T& arg) {
+		size_type push(T&& arg) {
             this->m_mutex.lock();
 
             if (!this->available()) {
                 //ORVOX_ERROR("BAD ALLOC");
             }
             uint8_t* obj_pointer = nullptr;
-            size_type index = 1;
+            std::size_t index = 1;
 
             if (!this->m_freelist) {
                 /// There are no empty slots in the allocated area. Resize the allocated portion.
@@ -186,7 +187,8 @@ namespace Impact {
                 *((T*)((uint8_t*)obj_pointer + m_offset)) = arg;
             }
             else {
-                *((T*)((uint8_t*)obj_pointer + m_offset)) = arg;
+
+                *((T*)((uint8_t*)obj_pointer + m_offset)) = std::move(arg);
             }
 
             return index - 1;
@@ -319,14 +321,14 @@ namespace Impact {
 			return 0;
 		}
 
-		std::size_t push(const T& arg) {
+		std::size_t push(T&& arg) {
             for (std::size_t i = 0; i < sizeof(this->m_index); ++i) {
                 if (this->m_index[i] == nullptr) {
                     this->m_index[i] = Same_allocator<offset_t, T>::Create();
                 }
                 if (this->m_index[i]->available()) {
                     this->m_size++;
-                    return this->m_index[i]->push(arg) + i * ((size_t)1 << (8 * page_t));
+                    return this->m_index[i]->push(std::forward<T>(arg)) + i * ((size_t)1 << (8 * page_t));
                 }
             }
 

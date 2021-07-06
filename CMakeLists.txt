@@ -12,4 +12,5 @@ add_executable(Impact
         src/quaternion.cpp
         src/rigidbody.cpp
         src/impact.cpp
-        src/rigidbody_contact.cpp)
+        src/rigidbody_contact.cpp
+        src/particle.cpp)

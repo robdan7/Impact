@@ -4,11 +4,15 @@
 #pragma once
 #include "vec3.h"
 #include "physics_object.h"
+#include "tools/ptr.h"
 namespace Impact {
     struct particle : public Physics_object{
+        friend Same_allocator<uint16_t,particle>;
+        friend private_ptr<particle>;
     public:
-        particle(const vec3& position,const vec3& velocity, scalar inverse_mass = 0, const vec3& acceleration = {}):inverse_mass(inverse_mass),position(position),velocity(velocity),acceleration(acceleration) {}
-        particle(const vec3& acceleration) : acceleration(acceleration) {}
+
+        static private_ptr<particle> Create(const vec3& position, const vec3& velocity, scalar inverse_mass = 0, const vec3& acceleration = {});
+        static private_ptr<particle> Create(const vec3& acceleration);
 
         /**
          * Apply force that will be translated into acceleration at the next integration step.
@@ -52,11 +56,15 @@ namespace Impact {
         }
 
     protected:
+        particle(const vec3& position,const vec3& velocity, scalar inverse_mass = 0, const vec3& acceleration = {}):inverse_mass(inverse_mass),position(position),velocity(velocity),acceleration(acceleration) {}
+        particle(const vec3& acceleration) : acceleration(acceleration) {}
         vec3 position{};
         vec3 velocity{};
         vec3 acceleration{}; /// Base acceleration from e.g. gravitation.
         vec3 force_accumulation{};
         scalar inverse_mass = 0;
         scalar damping = (scalar)0.999;
+    private:
+        static Same_arena_allocator<1,uint16_t,particle> s_allocator;
     };
 }

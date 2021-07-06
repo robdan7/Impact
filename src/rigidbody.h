@@ -14,9 +14,9 @@
 namespace Impact {
     class Rigidbody : public particle {
         friend Same_allocator<uint16_t,Rigidbody>;
-        friend pointer<Rigidbody>;
+        friend private_ptr<Rigidbody>;
     public:
-        static pointer<Rigidbody> Create(const vec3& position,const vec3& velocity, scalar inverse_mass = 0, const vec3& acceleration = {});
+        static private_ptr<Rigidbody> Create(const vec3& position, const vec3& velocity, scalar inverse_mass = 0, const vec3& acceleration = {});
         void integrate(scalar duration) override;
         void set_inertia(const mat3& inertia);
         void apply_torque(const vec3& t);
@@ -41,7 +41,7 @@ namespace Impact {
         mat4 transform;
         scalar angular_damping;
         vec3 acc_torque;
-        pointer<Physics_object> m_physics_instance; // This stores a reference to itself in the global Impact data structure.
+        //pointer<Physics_object*> m_physics_instance; // This stores a reference to itself in the global Impact data structure.
         static Same_arena_allocator<1,uint16_t,Rigidbody> s_allocator;
     };
 }

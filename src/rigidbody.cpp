@@ -34,18 +34,16 @@ namespace Impact {
         this->acc_torque += t;
     }
 
-    pointer<Rigidbody> Rigidbody::Create(const vec3& position,const vec3& velocity, scalar inverse_mass, const vec3& acceleration) {
+    private_ptr<Rigidbody> Rigidbody::Create(const vec3& position, const vec3& velocity, scalar inverse_mass, const vec3& acceleration) {
         auto ID =  (ptr_primitive)s_allocator.alloc(position,velocity,inverse_mass,acceleration);
-        Rigidbody* body = s_allocator.at(ID);
 
         //return pointer<Rigidbody>(ID,(Container<Rigidbody>*)s_allocator.);
-        return pointer<Rigidbody>(ID,(Container<Rigidbody>*)&s_allocator);
+        return private_ptr<Rigidbody>(ID, (Container<Rigidbody>*)&s_allocator);
     }
 
 
     Rigidbody::Rigidbody(const vec3 &position, const vec3 &velocity, scalar inverse_mass, const vec3 &acceleration)
-            : particle(position, velocity, inverse_mass, acceleration),
-              m_physics_instance(Impact::register_object(this)){
+            : particle(position, velocity, inverse_mass, acceleration){
     }
 
     void Rigidbody::apply_force_at_point(const vec3 &force, const vec3 &point) {
